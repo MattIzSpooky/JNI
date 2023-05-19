@@ -1,6 +1,9 @@
 # Calling native code in Java
 
-Java is well-known for its portability. Wherever the Java Virtual Machine (JVM) runs, your code will also run. However, in some instances we might need to call code that’s natively compiled. This could be to interact with a native library, to handle hardware or maybe even to improve performance for an intensive process. There are many reasons why one might consider doing this.
+Java is well-known for its portability. Wherever the Java Virtual Machine (JVM) runs, your code will also run. 
+However, in some instances we might need to call code that’s natively compiled. 
+This could be to interact with a native library, to handle hardware or maybe even to improve performance for an intensive process. 
+There are many reasons why one might consider doing this.
 
 How is this done, you might ask. The Java Development Kit (JDK) has got you covered. 
 The JDK provides a method called Java Native Interface (JNI) to bridge the gap between the bytecode running in the JVM and whatever native code you need to interact with.
@@ -10,7 +13,7 @@ The JDK provides a method called Java Native Interface (JNI) to bridge the gap b
 First things first, the native code has to be loaded in as a shared library. 
 To keep it simple, a shared library is an external file that contains native code that is loaded into a program on startup so that the program may call its methods. 
 You might have seen these files before. On Windows machines they have the “.dll” extension and on Linux they have the “.so” extension.
-In this article we will create a simple shared library and how to call it from your Java program.
+In this article we will create a simple shared library and show how to call it from your Java program.
 
 What do we need?
 - Java
@@ -18,7 +21,10 @@ What do we need?
 - CMake
 
 ### Step 1: Java
-Create a Java project as you would normally. Afterwards, load the library through a static block. This ensures that the library will be loaded if it can be found. Keep in mind that since it’s trying to load the library file in a static block, the program won’t be able to start without it. Alternatively, the shared library can be loaded anywhere in our application but this is my preferred method as you ensure that the library is loaded.
+Create a Java project as you would normally. 
+Afterward, load the library through a static block. This ensures that the library will be loaded if it can be found. 
+Keep in mind that since it’s trying to load the library file in a static block, the program won’t be able to start without it. 
+Alternatively, the shared library can be loaded anywhere in our application but this is my preferred method as you ensure that the library is loaded if the program started successfully.
 
 ```java
 @SpringBootApplication
@@ -33,9 +39,9 @@ public class JniArticleApplication implements CommandLineRunner {
     }
 }
 ```
-Next, create two new classes. One that will house you native methods and one that will be used as a data class.
+Next, create two new classes. One that will house your native methods and one that will be used as a data class.
 
-First we will start with the data class as it's the easiest. In our example we will create a simple class that holds a string.
+First we will start with the data class as it's the easiest to implement. In our example we will create a simple class that holds a string.
 
 ```java
 public class MyDataObject {
@@ -60,10 +66,14 @@ public class MyNativeObject {
     public native void manipulateData(MyDataObject dataObject);
 }
 ```
-This class looks familiar to something quite familiar in the Java world, abstract methods. Instead of the “abstract” keyword, the “native” keyword will be used, and this is where the magic will begin. In the next section we will use a tool that goes through our file and creates a C/C++ header file.
+The methods in this class looks familiar to something most Java programmers are already familiar with, abstract methods. 
+Instead of the “abstract” keyword, the “native” keyword will be used, and this is where the magic will begin. 
+In the next section we will use a tool that goes through our code, looks for native functions and creates a C/C++ header files.
 
 ### Step 2: Preparing our C++ code
-Now that we have written the Java code, we will use **javac** to generate the header files. This will be our second step to gluing together the Java and C++ code. For simplicity’s sake we will incorporate the header generation part in our build by adding the following under the plugin section in the maven POM.
+Now that we have written the Java code, we will use **javac** to generate the header files. 
+This will be our second step to gluing together the Java and C++ code. 
+For simplicity’s sake we will incorporate the header generation part as part of our build by adding the following under the plugin section in the maven POM.
 
 ```xml
 <plugin>
@@ -125,18 +135,23 @@ JNIEXPORT void JNICALL Java_com_matthijs_kropholler_jniarticle_MyNativeObject_ma
 
 ```
 
-Javac automatically generated functions based on the methods that we qualified as “native” earlier as well as the class it belongs to and the package name. Looking closer at the generated functions you can see a few things that might look weird on first view. Our integers got turned into “jint”. Why do all our functions have “JNIEnv*” and “jobject” even if the original Java function did not have any arguments? More confusingly, what does “JNIEXPORT” and “JNICALL” even mean?
+Javac automatically generated functions based on the methods that we qualified as “native” earlier, incorporating the class it belongs to and the package name into the name of the function. 
+Looking closer at the generated functions you can see a few things that might look weird at first glance.
+Our integers got turned into “jint”. Why do all our functions have “JNIEnv*” and “jobject” even if the original Java function did not have any arguments? 
+More confusingly, what does “JNIEXPORT” and “JNICALL” even mean?
 
-Let's start with the ones that are the easiest to explain. “jint” and “jobject” The “jint” is a C/C++ representation of a Java integer type. 
-“jobject” does the same but for a Java object instead. The first “jobject” argument you will see in a function represents the object itself, 
-like how'd you use “this” in Java to refer to a method or field within a class. Now for the ones that are a little bit more complicated to explain. 
-JNIEnv* is a pointer to the Java Native Interface environment. From here you can interact with Java, it is possible to access methods of objects, initialize new objects, etc. 
+Let's start with the ones that are the easiest to explain, “jint” and “jobject”. The “jint” is a C/C++ representation of a Java integer type. 
+“jobject” does the same but for a Java object instead. The first “jobject” argument you will see in a function represents the object itself.
+Now for the ones that are a little bit more complicated to explain. JNIEnv* is a pointer to the Java Native Interface environment. 
+From here you can interact with Java, it is possible to access methods of objects, initialize new objects, etc. 
 “JNIEXPORT” and “JNICALL” combined make it possible to actually call the function from Java. JNIEXPORT ensures that the function will be placed on the functions table so that JNI can find it. 
 JNICALL ensures that the exported function will be available to JNI so that it can be called from within our Java application.
 
 All of these types and compiler macros come from the “jni.h” header file which we can see at the top of our generated header file.
 
-Now all we have is a header file. Let’s create a .cpp file to implement the generated header. Create a **.cpp** file, preferably with the name same as our generated **.h** file in the **src/main/cpp** folder. In my case this is **com_matthijs_kropholler_jniarticle_MyNativeObject.cpp**.
+Now all we have is a header file. Let’s create a .cpp file to implement the generated header. 
+Create a **.cpp** file, preferably with the name same as our generated **.h** file in the **src/main/cpp** folder. 
+In my case this is **com_matthijs_kropholler_jniarticle_MyNativeObject.cpp**.
 
 Next, we will implement the C++ methods.
 ```cpp
@@ -187,7 +202,7 @@ JNIEXPORT void JNICALL Java_com_matthijs_kropholler_jniarticle_MyNativeObject_ma
 
 ### Step 3: Compiling our C++ code
 Now that we have our generated code we will need to compile it. We will use CMake since it's very popular in the C/C++ world, and for good reason too.
-One of CMake's main advantages is that it will generate platform specific makefiles and its compatible with a multitude of compilers.
+One of CMake's main advantages is that it will generate platform specific makefiles and that its compatible with a multitude of compilers.
 
 In our **cpp** folder. Where we house all our c++ things, create a new file called **CMakeLists.txt**. This file will contain our CMake instructions.
 
@@ -404,10 +419,11 @@ This however, might not be representable to a real world scenario since it's unl
 A few other things that have to be noted are performance and complexity. 
 
 As you saw, it is quite complex to set this up compared to an all-Java project, even for a simple example like this is.
-Performance is also an important factor. Calling native methods is not "free" performance. JNI is quite useful for things Java cannot do but C/C++ can or to optimize a long-running process that is incredibly slow in Java. 
+Performance is also an important factor. Calling native methods is not "free" performance. 
+JNI is quite useful for things Java cannot do but C/C++ can or to optimize a long-running process that is incredibly slow in Java. 
 But it's unsuitable for simple usage like shown in this article because communicating between Java and Native code has a cost associated to it.
 
-Adding a stopwatch in our code to benchmark the calls shows the following on an M1 Pro:
+Adding a stopwatch in our code to benchmark the calls shows the following on an M1 Pro MacBook:
 
 ```
 ---------------------------------------------

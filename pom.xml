@@ -74,7 +74,7 @@
                 <!-- To compile our shared library 2 things need to be done. 1. Generate CMake files. 2. Execute the generated files -->
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
-                <version>3.0.0</version>
+                <version>3.1.0</version>
                 <executions>
                     <execution>
                         <!-- Step 1. Generate the CMake files -->
