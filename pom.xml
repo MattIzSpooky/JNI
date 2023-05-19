@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.0.6</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.matthijs.kropholler</groupId>
+    <artifactId>JNIArticle</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <name>JNIArticle</name>
+    <description>JNIArticle</description>
+    <properties>
+        <java.version>17</java.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                        </exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- This plugin removes the "sharedlibs" folder from the root of our project once we run a Maven clear -->
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <filesets>
+                        <fileset>
+                            <directory>${basedir}/sharedlibs</directory>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- This plugin will call javac -->
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <compilerArgs>
+                        <arg>-h</arg> <!-- the "h" flag will generate header files -->
+                        <arg>src/main/cpp</arg> <!-- the location of where we want the header files stored -->
+                    </compilerArgs>
+                </configuration>
+            </plugin>
+            <plugin>
+                <!-- This plugin allows to execute programs -->
+                <!-- To compile our shared library 2 things need to be done. 1. Generate CMake files. 2. Execute the generated files -->
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.0.0</version>
+                <executions>
+                    <execution>
+                        <!-- Step 1. Generate the CMake files -->
+                        <id>Generate CMake files</id>
+                        <!-- Run before compile -->
+                        <phase>compile</phase>
+                        <goals>
+                             <!-- This tells the plugin to execute the program -->
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>cmake</executable>
+                            <workingDirectory>src/main/cpp</workingDirectory>
+                            <arguments>
+                                <argument>-S</argument> <!-- argument to tell cmake where the source dir of the CMakelists.txt file is -->
+                                <argument>.</argument> <!-- current folder (src/main/cpp) -->
+                                <argument>-B</argument> <!-- argument to tell cmake where it should place the generated files -->
+                                <argument>../../../target/cmake-build</argument> <!-- a new folder "cmake-build" in the "target" folder -->
+                            </arguments>
+                        </configuration>
+                    </execution>
+                    <execution>
+                        <!-- Step 2. Run the generate cmake files (compile & link native code) -->
+                        <id>Compile native code</id>
+                        <phase>compile</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <!-- CMake generates makefiles so we can just run make in the "cmake-build" folder -->
+                            <executable>make</executable>
+                            <workingDirectory>target/cmake-build</workingDirectory>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
