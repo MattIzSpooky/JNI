@@ -399,3 +399,25 @@ When we run our application we see the following.
 Congratulations, you have successfully called native C++ code from within your Java program.
 
 ## Final words
+This article provides a simple example on how to call C++ code from Java and also Java code from C++. 
+This however, might not be representable to a real world scenario since it's unlikely that a real world scenario is as simple as this is.
+A few other things that have to be noted are performance and complexity. 
+
+As you saw, it is quite complex to set this up compared to an all-Java project, even for a simple example like this is.
+Performance is also an important factor. Calling native methods is not "free" performance. JNI is quite useful for things Java cannot do but C/C++ can or to optimize a long-running process that is incredibly slow in Java. 
+But it's unsuitable for simple usage like shown in this article because communicating between Java and Native code has a cost associated to it.
+
+Adding a stopwatch in our code to benchmark the calls shows the following on an M1 Pro:
+
+```
+---------------------------------------------
+ns         %     Task name
+---------------------------------------------
+000011917  033%  native code AddNumbers
+000000208  001%  java code AddNumbers
+000015208  042%  native code Reverse String
+000009084  025%  java code Reverse String
+```
+As you can see, the native methods are measurably slower than the Java variants are.
+
+That being said, I believe that JNI definitely has its usages even if they are not common and I hope that this article may be used to get someone started with JNI.
