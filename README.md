@@ -7,6 +7,9 @@ There are many reasons why one might consider doing this. While I have not used 
 
 The Java Development Kit (JDK) provides a method called Java Native Interface (JNI) to bridge the gap between the bytecode running in the JVM and whatever native code you need to interact with.
 
+## What are we going to do?
+We are going to write a simple C++ library that uses JNI, import it into a Java application and call the native functions from that library within our Java program. Quite simple really, or is it?
+
 ## So. How does it work?
 
 First things first, the native code has to be loaded into the JVM as a shared library. 
@@ -145,7 +148,7 @@ Let's start with the ones that are the easiest to explain, “jint” and “job
 “jobject” is similar but for a Java object instead. The first “jobject” argument you see in a function represents the object itself.
 Now for the ones that are a little bit more complicated to explain. JNIEnv* is a pointer to the Java Native Interface environment.
 This JNIEnv* pointer allows for interaction with Java. It makes it possible to access methods of objects, initialize new objects, etc. 
-“JNIEXPORT” and “JNICALL” combined make it possible to actually call the function from Java. JNIEXPORT ensures that the function is be placed on the functions table so that JNI can find it. 
+“JNIEXPORT” and “JNICALL” provide information that JNI needs to call the functions. JNIEXPORT ensures that the function is be placed on the functions table so that JNI can find it. 
 JNICALL ensures that the exported function is available to JNI so that it can be called from within our Java application.
 
 All of these types and compiler macros come from the “jni.h” header file which can seen at the top of the generated header file.
@@ -372,12 +375,17 @@ Congratulations, you have successfully called native C++ code from within your J
 ## Final words
 This article provides a simple example on how to call C++ code from Java and also Java code from C++. 
 This however, might not be representable to a real world scenario since it's unlikely that a real world scenario is as simple as this is.
-A few other things that have to be noted are performance and complexity. 
 
-As you saw, it is quite complex to set this up compared to an all-Java project, even for a simple example like this is.
-Performance is also an important factor. Calling native methods is not "free" performance. 
-JNI is quite useful for things Java cannot do but C/C++ can or to optimize a long-running process that is incredibly slow in Java. 
-But it's unsuitable for simple usage like shown in this article because communicating between Java and Native code has a cost associated to it.
+Something that was left out in this article but are important to consider when using this in the real world.
+- Complexity
+- Performance
+
+Let's start with complexity. As you saw, it is quite complex to set this up compared to an all-Java project, even for a simple example like this is.
+Apart from the JDK, you need the other tools installed on your machine to get this to work. A C++ compiler and CMake. Not to mention that there are differences between C++ compilers, each have their strengths and weaknesses which may need to be considered. Apart from tools you also need to wire everything up using Maven and even have to manage a CMake file, something which a lot of Java programmers are not familiar with. The native code can also not be debugged which can make it very difficult to trouble shoot if there is a problem in the JNI-layer. It would have to be separately tested.
+
+Next up is performance. Calling native methods is not "free" performance, in fact, it's very slow for simple calls!
+JNI is quite useful for things Java cannot do, but C/C++ can or to optimize a long-running process that is incredibly slow in Java. 
+However, it's unsuitable for simple usage like shown in this article because communicating between Java and Native code has a cost associated to it.
 
 Adding a stopwatch in our code to benchmark the calls shows the following on an M1 Pro MacBook:
 
