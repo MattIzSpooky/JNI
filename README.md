@@ -380,8 +380,8 @@ Something that was left out in this article but are important to consider when u
 - Complexity
 - Performance
 
-Let's start with complexity. As you saw, it is quite complex to set this up compared to an all-Java project, even for a simple example like this is.
-Apart from the JDK, you need the other tools installed on your machine to get this to work. A C++ compiler and CMake. Not to mention that there are differences between C++ compilers, each have their strengths and weaknesses which may need to be considered. Apart from tools you also need to wire everything up using Maven and even have to manage a CMake file, something which a lot of Java programmers are not familiar with. The native code can also not be debugged which can make it very difficult to trouble shoot if there is a problem in the JNI-layer. It would have to be separately tested.
+Let's start with complexity. As you saw, it is quite complex to set this up compared to an all-Java project, even for a simple example like this.
+Apart from the JDK, you need the other tools installed on your machine to get this to work. A C++ compiler and CMake. Not to mention that there are differences between C++ compilers, each have their strengths and weaknesses which may need to be considered. Apart from tools you also need to wire everything up using Maven and even have to manage a CMake file, something which a lot of Java programmers are not familiar with. The native code can also not be debugged easily which can make it very difficult to trouble shoot if there is a problem in the JNI-layer. It would have to be separately tested.
 
 Next up is performance. Calling native methods is not "free" performance, in fact, it's very slow for simple calls!
 JNI is quite useful for things Java cannot do, but C/C++ can or to optimize a long-running process that is incredibly slow in Java. 
