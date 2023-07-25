@@ -73,11 +73,11 @@ The next section describes how to prepare the C++ code.
 
 ### Step 2: Preparing the C++ code
 The **javac** command is used to generate header files from Java code that has the "native" keyword.
-This brings us one step closer to glueing the Java and C++ together.
+This brings us one step closer to gluing the Java and C++ together.
 
 For those who do not know what a C/C++ header file is. Keeping it simple, it is a file that contains declarations of functions and types that are later implemented in source files (.cpp files).
 
-To incoporate this into the build process, adding the following under the plugin section in the maven POM.
+To incorporate this into the build process, adding the following under the plugin section in the maven POM.
 
 ```xml
 <plugin>
@@ -92,7 +92,7 @@ To incoporate this into the build process, adding the following under the plugin
 </plugin>
 ```
 
-Now we run a build and we should see the **“cpp”** folder in our project. In that folder we should find a generated header file.
+Now we run a build, and we should see the **“cpp”** folder in our project. In that folder we should find a generated header file.
 
 ![Generated header](images/generated_header.png)
 
